@@ -84,13 +84,22 @@ function CartSidebar() {
                 <span className="font-bold">Total:</span>
                 <span className="font-bold">${total.toFixed(2)}</span>
               </div>
-              <Link
-                to="/checkout"
-                className="block w-full bg-gray-800 text-white text-center py-2 rounded-md hover:bg-gray-700"
-                onClick={() => setIsCartOpen(false)}
-              >
-                Checkout
-              </Link>
+              <div className="space-y-2">
+                <Link
+                  to="/cart"
+                  className="block w-full bg-gray-100 text-gray-900 text-center py-2 rounded-md hover:bg-gray-200 transition"
+                  onClick={() => setIsCartOpen(false)}
+                >
+                  View Cart
+                </Link>
+                <Link
+                  to="/checkout"
+                  className="block w-full bg-gray-900 text-white text-center py-2 rounded-md hover:bg-gray-800 transition"
+                  onClick={() => setIsCartOpen(false)}
+                >
+                  Checkout
+                </Link>
+              </div>
             </div>
           </>
         )}
