@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useOrders } from '../context/OrderContext'
 
 function Checkout() {
-  const { cartItems, getTotalPrice, clearCart } = useCart()
+  const { cart, getCartTotal, clearCart, loading } = useCart()
   const { user } = useAuth()
+  const { createOrder } = useOrders()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
@@ -18,6 +20,7 @@ function Checkout() {
     cvv: ''
   })
   const [isProcessing, setIsProcessing] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -30,23 +33,43 @@ function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsProcessing(true)
-
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    // In a real app, you would:
-    // 1. Validate the form data
-    // 2. Process the payment
-    // 3. Create an order in the database
-    // 4. Send confirmation email
-    // 5. Clear the cart
-    // 6. Redirect to success page
-
-    clearCart()
-    navigate('/account', { state: { orderSuccess: true } })
+    setError(null)
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Create order in Firestore
+      await createOrder({
+        shipping: {
+          fullName: formData.fullName,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode
+        },
+        payment: {
+          cardNumber: formData.cardNumber,
+          expiryDate: formData.expiryDate,
+          cvv: formData.cvv
+        },
+        total: getCartTotal()
+      })
+      clearCart()
+      navigate('/account', { state: { orderSuccess: true } })
+    } catch (err) {
+      setError('Failed to place order. Please try again.')
+      setIsProcessing(false)
+    }
   }
 
-  if (cartItems.length === 0) {
+  if (loading || !cart) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-900 border-t-transparent"></div>
+      </div>
+    )
+  }
+
+  if (cart.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
@@ -64,7 +87,7 @@ function Checkout() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-
+      {error && <div className="mb-4 text-red-600 font-semibold">{error}</div>}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Checkout Form */}
         <div className="lg:col-span-2">
@@ -209,7 +232,7 @@ function Checkout() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
             <div className="space-y-4">
-              {cartItems.map(item => (
+              {cart.map(item => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>{item.name} x {item.quantity}</span>
                   <span>${(item.price * item.quantity).toFixed(2)}</span>
@@ -218,7 +241,7 @@ function Checkout() {
               <div className="border-t pt-4">
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>${getCartTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>

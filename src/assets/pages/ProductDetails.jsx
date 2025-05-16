@@ -1,13 +1,16 @@
 import { useParams, Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useProducts } from '../context/ProductContext'
 import { useCart } from '../context/CartContext'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 function ProductDetails() {
   const { id } = useParams()
   const { products } = useProducts()
   const { addToCart } = useCart()
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   
-  const product = products.find(p => p.id === parseInt(id))
+  const product = products.find(p => p.id === id)
   const related = products.filter(p => p.category === product?.category && p.id !== product?.id).slice(0, 3)
 
   if (!product) {
@@ -16,6 +19,16 @@ function ProductDetails() {
         <h2 className="text-2xl font-bold text-gray-800">Product not found</h2>
       </div>
     )
+  }
+
+  const images = product.images || [product.image]
+
+  const nextImage = () => {
+    setSelectedImageIndex((prev) => (prev + 1) % images.length)
+  }
+
+  const prevImage = () => {
+    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length)
   }
 
   return (
@@ -31,15 +44,51 @@ function ProductDetails() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Image Gallery */}
         <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center justify-center">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-96 object-cover rounded-2xl shadow-md mb-4"
-          />
-          {/* Gallery thumbnails (if more images) */}
-          <div className="flex gap-2 mt-2">
-            <img src={product.image} alt="thumb" className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200" />
+          <div className="relative w-full">
+            <img
+              src={images[selectedImageIndex]}
+              alt={product.name}
+              className="w-full h-96 object-cover rounded-2xl shadow-md mb-4"
+            />
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
           </div>
+          {/* Gallery thumbnails */}
+          {images.length > 1 && (
+            <div className="flex gap-2 mt-2">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className={`w-16 h-16 rounded-lg border-2 transition ${
+                    index === selectedImageIndex
+                      ? 'border-gray-900'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <img
+                    src={image}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="space-y-6">
           <span className="px-4 py-2 bg-gray-100 text-xs font-semibold rounded-full text-gray-700 uppercase tracking-wide">{product.category}</span>
@@ -62,19 +111,27 @@ function ProductDetails() {
       </div>
       {/* Related Products */}
       {related.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-xl font-bold mb-6 text-gray-900">You may also like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {related.map(rp => (
-              <Link to={`/products/${rp.id}`} key={rp.id} className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all p-4 flex flex-col items-center border border-gray-100 hover:border-gray-200">
-                <img src={rp.image} alt={rp.name} className="w-full h-32 object-cover rounded-xl mb-2" />
-                <span className="px-3 py-1 bg-gray-100 text-xs font-semibold rounded-full mb-1 text-gray-700 uppercase tracking-wide">{rp.category}</span>
-                <h3 className="text-base font-semibold mb-1 text-center">{rp.name}</h3>
-                <span className="text-gray-900 font-bold">${rp.price}</span>
-              </Link>
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {related.map(relatedProduct => (
+              <div key={relatedProduct.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <Link to={`/products/${relatedProduct.id}`}>
+                  <img
+                    src={relatedProduct.images?.[0] || relatedProduct.image}
+                    alt={relatedProduct.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{relatedProduct.name}</h3>
+                    <p className="text-gray-600 mb-2 line-clamp-2">{relatedProduct.description}</p>
+                    <p className="text-xl font-bold text-gray-900">${relatedProduct.price}</p>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
-        </section>
+        </div>
       )}
     </div>
   )

@@ -2,15 +2,19 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import { useProducts } from '../context/ProductContext'
+import { X, Frown } from 'lucide-react'
 
 function Products() {
   const [searchParams] = useSearchParams()
   const { products } = useProducts()
   const [selectedCategories, setSelectedCategories] = useState([])
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 })
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 })
   const [sortBy, setSortBy] = useState('featured')
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const PRODUCTS_PER_PAGE = 9
 
+  // Categories should match admin product form
   const categories = [
     { id: 'pocket-knives', name: 'Pocket Knives' },
     { id: 'flashlights', name: 'Flashlights' },
@@ -28,6 +32,14 @@ function Products() {
     }
   }, [searchParams])
 
+  const toggleCategory = (categoryId) => {
+    setSelectedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    )
+  }
+
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category)
     const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max
@@ -43,19 +55,21 @@ function Products() {
         return a.price - b.price
       case 'price-high-low':
         return b.price - a.price
-      case 'newest':
-        return b.id - a.id
       default:
         return 0
     }
   })
 
-  const toggleCategory = (categoryId) => {
-    setSelectedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    )
+  // Pagination logic
+  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE)
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  )
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const removeSearchFilter = () => {
@@ -64,6 +78,10 @@ function Products() {
     newParams.delete('search')
     window.history.replaceState(null, '', `?${newParams.toString()}`)
   }
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedCategories, priceRange, sortBy, searchQuery])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -129,9 +147,7 @@ function Products() {
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
                     >
                       {category.name}
-                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <X className="w-4 h-4 ml-1" />
                     </button>
                   )
                 })}
@@ -141,9 +157,7 @@ function Products() {
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
                   >
                     Search: {searchQuery}
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-4 h-4 ml-1" />
                   </button>
                 )}
               </div>
@@ -166,25 +180,44 @@ function Products() {
                 <option value="featured">Sort by: Featured</option>
                 <option value="price-low-high">Price: Low to High</option>
                 <option value="price-high-low">Price: High to Low</option>
-                <option value="newest">Newest First</option>
               </select>
             </div>
           </div>
 
           {sortedProducts.length === 0 ? (
             <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <Frown className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
               <p className="text-gray-500">Try adjusting your filters or search terms</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sortedProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedProducts.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                  <nav className="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    {[...Array(totalPages)].map((_, idx) => (
+                      <button
+                        key={idx + 1}
+                        onClick={() => handlePageChange(idx + 1)}
+                        className={`px-4 py-2 border border-gray-300 text-sm font-medium ${
+                          currentPage === idx + 1
+                            ? 'bg-gray-900 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

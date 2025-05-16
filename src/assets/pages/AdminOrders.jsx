@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useOrders } from '../context/OrderContext'
+import { X } from 'lucide-react'
 
 function AdminOrders() {
   const { user } = useAuth()
@@ -58,8 +59,8 @@ function AdminOrders() {
                   <div className="text-sm font-medium text-gray-900">#{order.id}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{order.customerName}</div>
-                  <div className="text-sm text-gray-500">{order.customerEmail}</div>
+                  <div className="text-sm font-medium text-gray-900">{order.userName || 'N/A'}</div>
+                  <div className="text-sm text-blue-600">{order.userEmail || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
@@ -115,17 +116,19 @@ function AdminOrders() {
                 onClick={() => setSelectedOrder(null)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-6 h-6" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
                 <h3 className="font-medium text-gray-900">Customer Information</h3>
-                <p className="text-gray-600">{selectedOrder.customerName}</p>
-                <p className="text-gray-600">{selectedOrder.customerEmail}</p>
-                <p className="text-gray-600">{selectedOrder.shippingAddress}</p>
+                <p className="text-gray-900 font-semibold">{selectedOrder.userName || 'N/A'}</p>
+                <p className="text-blue-600">{selectedOrder.userEmail || 'N/A'}</p>
+                {selectedOrder.shipping && (
+                  <>
+                    <p className="text-gray-600">{selectedOrder.shipping.address}, {selectedOrder.shipping.city}, {selectedOrder.shipping.state} {selectedOrder.shipping.zipCode}</p>
+                  </>
+                )}
               </div>
               <div>
                 <h3 className="font-medium text-gray-900">Order Items</h3>

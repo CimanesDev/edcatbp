@@ -4,10 +4,11 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useState, useEffect } from 'react'
 import logo from '../images/transparent.png'
+import { ShoppingCart, User, Menu, X, Search, Shield, Package, ClipboardList } from 'lucide-react'
 
-function Navbar() {
+function Navbar({ onCartClick }) {
   const { user, logout, isAdmin } = useAuth()
-  const { cartItems, setIsCartOpen, getTotalItems } = useCart()
+  const { getCartCount } = useCart()
   const { wishlist } = useWishlist()
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
@@ -28,10 +29,16 @@ function Navbar() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
   }
+
+  // Helper to get first name
+  const getFirstName = (displayName) => displayName ? displayName.split(' ')[0] : ''
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur shadow-sm border-b border-gray-100">
@@ -53,32 +60,34 @@ function Navbar() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
               />
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
           </form>
 
           {/* Nav Links */}
           <div className="hidden md:flex space-x-10 text-lg font-medium">
-            <Link 
-              to={isAdmin ? "/admin/products" : "/products"} 
-              className="text-gray-700 hover:text-gray-900 transition"
-            >
-              Products
-            </Link>
-            {!isAdmin && (
+            {isAdmin ? (
               <>
+                <Link 
+                  to="/admin/products" 
+                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
+                >
+                  <Package className="w-5 h-5" />
+                  Products
+                </Link>
+                <Link 
+                  to="/admin/orders" 
+                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
+                >
+                  <ClipboardList className="w-5 h-5" />
+                  Orders
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/products" className="text-gray-700 hover:text-gray-900 transition">
+                  Products
+                </Link>
                 <Link to="/wishlist" className="text-gray-700 hover:text-gray-900 transition relative">
                   Wishlist
                   {wishlist.length > 0 && (
@@ -87,11 +96,10 @@ function Navbar() {
                     </span>
                   )}
                 </Link>
-                <Link to="/contact" className="text-gray-700 hover:text-gray-900 transition">Contact</Link>
+                <Link to="/contact" className="text-gray-700 hover:text-gray-900 transition">
+                  Contact
+                </Link>
               </>
-            )}
-            {isAdmin && (
-              <Link to="/admin/orders" className="text-gray-700 hover:text-gray-900 transition">Orders</Link>
             )}
           </div>
 
@@ -99,11 +107,18 @@ function Navbar() {
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
+                {isAdmin && (
+                  <div className="flex items-center gap-1 text-blue-600">
+                    <Shield className="w-5 h-5" />
+                    <span className="font-medium">Admin</span>
+                  </div>
+                )}
                 <Link
                   to="/account"
-                  className="text-gray-700 hover:text-gray-900 transition"
+                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
                 >
-                  Account
+                  <User className="w-5 h-5" />
+                  {getFirstName(user.displayName) || 'Account'}
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -122,26 +137,14 @@ function Navbar() {
             )}
             {!isAdmin && (
               <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-3 rounded-full hover:bg-gray-100 transition group"
-                aria-label="Open cart"
+                type="button"
+                onClick={onCartClick}
+                className="relative text-gray-700 hover:text-gray-900"
               >
-                <svg
-                  className="w-7 h-7 text-gray-700 group-hover:text-gray-900 transition"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                {getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center border-2 border-white shadow">
-                    {getTotalItems()}
+                <ShoppingCart className="h-6 w-6" />
+                {getCartCount() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getCartCount()}
                   </span>
                 )}
               </button>
@@ -153,24 +156,34 @@ function Navbar() {
       {/* Mobile Navigation */}
       <div className="md:hidden">
         <div className="px-2 pt-2 pb-3 space-y-1">
-          <Link
-            to={isAdmin ? "/admin/products" : "/products"}
-            className="block px-3 py-2 text-gray-600 hover:text-gray-900"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Products
-          </Link>
-          {isAdmin && (
-            <Link
-              to="/admin/orders"
-              className="block px-3 py-2 text-gray-600 hover:text-gray-900"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Orders
-            </Link>
-          )}
-          {!isAdmin && (
+          {isAdmin ? (
             <>
+              <Link
+                to="/admin/products"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Package className="w-5 h-5" />
+                Products
+              </Link>
+              <Link
+                to="/admin/orders"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ClipboardList className="w-5 h-5" />
+                Orders
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/products"
+                className="block px-3 py-2 text-gray-600 hover:text-gray-900"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Products
+              </Link>
               <Link
                 to="/wishlist"
                 className="block px-3 py-2 text-gray-600 hover:text-gray-900"
@@ -189,12 +202,19 @@ function Navbar() {
           )}
           {user ? (
             <>
+              {isAdmin && (
+                <div className="flex items-center gap-1 px-3 py-2 text-blue-600">
+                  <Shield className="w-5 h-5" />
+                  <span className="font-medium">Admin</span>
+                </div>
+              )}
               <Link
                 to="/account"
-                className="block px-3 py-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Account
+                <User className="w-5 h-5" />
+                {getFirstName(user.displayName) || 'Account'}
               </Link>
               <button
                 onClick={() => {

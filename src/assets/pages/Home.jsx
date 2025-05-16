@@ -4,6 +4,7 @@ import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
 import { useProducts } from '../context/ProductContext'
 import ProductCard from '../components/ProductCard'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -60,9 +61,7 @@ function Home() {
                 className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-900 bg-white rounded-xl hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-xl"
               >
                 Shop Now
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <Link
                 to="/products?category=featured"
@@ -85,17 +84,13 @@ function Home() {
                 onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length)}
                 className="p-2 rounded-full hover:bg-gray-100 transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredProducts.length)}
                 className="p-2 rounded-full hover:bg-gray-100 transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <ChevronRight className="w-6 h-6" />
               </button>
             </div>
           </div>

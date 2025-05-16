@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
+import { Heart } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 function ProductCard({ product }) {
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist()
@@ -9,7 +11,7 @@ function ProductCard({ product }) {
   const handleWishlist = (e) => {
     e.preventDefault()
     if (!user) {
-      alert('Please log in to add items to wishlist')
+      toast.error('Please log in to add items to wishlist')
       return
     }
     if (isInWishlist(product.id)) {
@@ -19,13 +21,15 @@ function ProductCard({ product }) {
     }
   }
 
+  const productImage = product.images?.[0] || product.image
+
   return (
     <Link to={`/products/${product.id}`} className="group h-full">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
         <div className="relative">
           <div className="aspect-w-4 aspect-h-3 w-full">
             <img
-              src={product.image}
+              src={productImage}
               alt={product.name}
               className="w-full h-48 object-cover object-center"
             />
@@ -34,21 +38,11 @@ function ProductCard({ product }) {
             onClick={handleWishlist}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-white transition"
           >
-            <svg
+            <Heart
               className={`w-6 h-6 ${
-                isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
+                isInWishlist(product.id) ? 'text-red-500 fill-current' : 'text-gray-400'
               }`}
-              fill={isInWishlist(product.id) ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
+            />
           </button>
         </div>
         <div className="p-6 flex-1 flex flex-col">

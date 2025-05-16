@@ -15,7 +15,10 @@ function Account() {
     address: user?.address || ''
   })
 
-  const userOrders = orders.filter(order => order.customerEmail === user.email)
+  const userOrders = orders.filter(order => order.userId === user.uid)
+
+  // Helper to get first name
+  const getFirstName = (displayName) => displayName ? displayName.split(' ')[0] : ''
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -52,7 +55,7 @@ function Account() {
         <div className="w-full md:w-64">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Welcome, {user.email}</h2>
+              <h2 className="text-xl font-semibold mb-2">Welcome, {getFirstName(user.displayName)}</h2>
               <p className="text-sm text-gray-600">Role: {user.role}</p>
             </div>
             <nav className="space-y-2">
@@ -92,18 +95,6 @@ function Account() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email
                   </label>
                   <input
@@ -112,6 +103,7 @@ function Account() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    readOnly
                   />
                 </div>
                 <div>

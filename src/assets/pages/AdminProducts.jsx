@@ -16,28 +16,35 @@ function AdminProducts() {
     stock: ''
   })
 
-  const categories = ['Knives', 'Flashlights', 'Multi-tools']
+  const categories = [
+    { id: 'pocket-knives', name: 'Pocket Knives' },
+    { id: 'flashlights', name: 'Flashlights' },
+    { id: 'coins', name: 'Coins' }
+  ]
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (editingProduct) {
-      updateProduct(editingProduct.id, formData)
+      if (editingProduct.id && typeof editingProduct.id === 'string' && !editingProduct.id.startsWith('temp-')) {
+        await updateProduct(editingProduct.id, {
+          ...formData,
+          price: parseFloat(formData.price),
+          stock: parseInt(formData.stock)
+        })
+      }
       setEditingProduct(null)
     } else {
-      addProduct({
+      const newProduct = await addProduct({
         ...formData,
-        id: Date.now().toString(),
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock)
       })
+      setEditingProduct(newProduct)
     }
     resetForm()
   }
@@ -94,8 +101,6 @@ function AdminProducts() {
           Add New Product
         </button>
       </div>
-
-      {/* Add/Edit Product Form */}
       {isAddingProduct && (
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
@@ -112,9 +117,7 @@ function AdminProducts() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
                   type="text"
                   name="name"
@@ -125,9 +128,7 @@ function AdminProducts() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Price
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                 <input
                   type="number"
                   step="0.01"
@@ -139,9 +140,7 @@ function AdminProducts() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
                   name="category"
                   value={formData.category}
@@ -151,16 +150,12 @@ function AdminProducts() {
                 >
                   <option value="">Select a category</option>
                   {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
+                    <option key={category.id} value={category.id}>{category.name}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
                 <input
                   type="number"
                   name="stock"
@@ -171,9 +166,7 @@ function AdminProducts() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
                 <input
                   type="text"
                   name="image"
@@ -184,9 +177,7 @@ function AdminProducts() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -208,27 +199,15 @@ function AdminProducts() {
           </form>
         </div>
       )}
-
-      {/* Products List */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stock
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">

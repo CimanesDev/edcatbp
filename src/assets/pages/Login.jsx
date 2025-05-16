@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 function Login() {
   const [email, setEmail] = useState('')
@@ -9,14 +9,15 @@ function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     
-    if (login(email, password)) {
+    try {
+      await login(email, password)
       navigate('/')
-    } else {
-      setError('Invalid credentials')
+    } catch (error) {
+      setError(error.message)
     }
   }
 
@@ -78,9 +79,11 @@ function Login() {
           </div>
         </form>
         <div className="text-center text-sm text-gray-500">
-          <p>Demo credentials:</p>
-          <p>Admin: admin@edc.com / admin123</p>
-          <p>User: user@edc.com / user123</p>
+          <p>Don't have an account?{' '}
+            <Link to="/register" className="font-medium text-gray-900 hover:text-gray-700">
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </div>
