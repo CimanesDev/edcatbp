@@ -56,7 +56,7 @@ function Cart() {
                 />
                 <div className="flex-grow">
                   <h3 className="font-medium mb-2">{item.name}</h3>
-                  <p className="text-gray-600 mb-4">${item.price.toFixed(2)}</p>
+                  <p className="text-gray-600 mb-4">₱{item.price.toFixed(2)}</p>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center border rounded-lg">
                       <button
@@ -83,7 +83,7 @@ function Cart() {
                 </div>
                 <div className="text-right">
                   <p className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₱{(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -98,7 +98,7 @@ function Cart() {
             <div className="space-y-4">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${getCartTotal().toFixed(2)}</span>
+                <span>₱{getCartTotal().toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
@@ -107,7 +107,7 @@ function Cart() {
               <div className="border-t pt-4">
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>${getCartTotal().toFixed(2)}</span>
+                  <span>₱{getCartTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>

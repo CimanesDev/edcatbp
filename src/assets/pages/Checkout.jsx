@@ -235,13 +235,13 @@ function Checkout() {
               {cart.map(item => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>{item.name} x {item.quantity}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>₱{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               <div className="border-t pt-4">
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>${getCartTotal().toFixed(2)}</span>
+                  <span>₱{getCartTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>

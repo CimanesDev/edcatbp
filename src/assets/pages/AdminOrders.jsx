@@ -68,7 +68,7 @@ function AdminOrders() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">${order.total.toFixed(2)}</div>
+                  <div className="text-sm text-gray-900">₱{order.total.toFixed(2)}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -147,7 +147,7 @@ function AdminOrders() {
                         </div>
                       </div>
                       <p className="text-sm font-medium text-gray-900">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₱{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -156,7 +156,7 @@ function AdminOrders() {
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-medium">
                   <span>Total</span>
-                  <span>${selectedOrder.total.toFixed(2)}</span>
+                  <span>₱{selectedOrder.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

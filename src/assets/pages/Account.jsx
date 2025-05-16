@@ -185,7 +185,7 @@ function Account() {
                               </div>
                             </div>
                             <p className="text-sm font-medium text-gray-900">
-                              ${(item.price * item.quantity).toFixed(2)}
+                              ₱{(item.price * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         ))}
@@ -193,7 +193,7 @@ function Account() {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <div className="flex justify-between text-sm font-medium">
                           <span>Total</span>
-                          <span>${order.total.toFixed(2)}</span>
+                          <span>₱{order.total.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>

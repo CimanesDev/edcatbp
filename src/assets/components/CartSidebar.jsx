@@ -97,7 +97,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
-                  <span className="text-base font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="text-base font-semibold text-gray-900">₱{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               </div>
             ))
@@ -109,7 +109,7 @@ export default function CartSidebar({ isOpen, onClose }) {
           <div className="flex flex-col gap-3 mb-4">
             <div className="flex justify-between items-center">
               <span className="text-lg font-semibold">Total:</span>
-              <span className="text-xl font-bold text-gray-900">${getCartTotal().toFixed(2)}</span>
+              <span className="text-xl font-bold text-gray-900">₱{getCartTotal().toFixed(2)}</span>
             </div>
             <Link
               to="/cart"

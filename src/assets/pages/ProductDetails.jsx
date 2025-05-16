@@ -112,7 +112,7 @@ function ProductDetails() {
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{relatedProduct.name}</h3>
                     <p className="text-gray-600 mb-2 line-clamp-2">{relatedProduct.description}</p>
-                    <p className="text-xl font-bold text-gray-900">${relatedProduct.price}</p>
+                    <p className="text-xl font-bold text-gray-900">₱{relatedProduct.price}</p>
                   </div>
                 </Link>
               </div>
