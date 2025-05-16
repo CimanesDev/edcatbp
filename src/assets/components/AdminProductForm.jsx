@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
 
 function AdminProductForm({ product, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -37,31 +36,22 @@ function AdminProductForm({ product, onSubmit, onCancel }) {
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  const handleImageChange = (index, value) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.map((img, i) => i === index ? value : img)
-    }))
-  }
-
-  const addImageField = () => {
-    if (formData.images.length < 5) {
-      setFormData(prev => ({ ...prev, images: [...prev.images, ''] }))
-    }
-  }
-
-  const removeImageField = (index) => {
-    setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }))
+  const handleImagesChange = (e) => {
+    // Split by newlines or commas, trim, and filter out empty
+    const urls = e.target.value
+      .split(/\n|,/)
+      .map(url => url.trim())
+      .filter(Boolean)
+    setFormData(prev => ({ ...prev, images: urls }))
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const filteredImages = formData.images.filter(img => img.trim() !== '')
     onSubmit({
       ...formData,
-      images: filteredImages,
       price: parseFloat(formData.price),
-      stock: parseInt(formData.stock)
+      stock: parseInt(formData.stock),
+      images: formData.images.filter(Boolean)
     })
   }
 
@@ -122,38 +112,16 @@ function AdminProductForm({ product, onSubmit, onCancel }) {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Product Images (up to 5)</label>
-        <div className="space-y-2">
-          {formData.images.map((image, index) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="url"
-                value={image}
-                onChange={e => handleImageChange(index, e.target.value)}
-                placeholder="Image URL"
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900"
-              />
-              {index > 0 && (
-                <button
-                  type="button"
-                  onClick={() => removeImageField(index)}
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          ))}
-          {formData.images.length < 5 && (
-            <button
-              type="button"
-              onClick={addImageField}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              + Add another image
-            </button>
-          )}
-        </div>
+        <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-2">Product Image URLs (one per line or comma separated)</label>
+        <textarea
+          id="images"
+          name="images"
+          value={formData.images.join('\n')}
+          onChange={handleImagesChange}
+          rows="3"
+          placeholder="https://example.com/image1.jpg\nhttps://example.com/image2.jpg"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900"
+        />
       </div>
       <div>
         <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>

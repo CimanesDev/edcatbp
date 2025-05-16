@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import logo from '../images/transparent.png'
+import logo from '../images/transparentwhite.png'
 
 function Footer() {
   return (

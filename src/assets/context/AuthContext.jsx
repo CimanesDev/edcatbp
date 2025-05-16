@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { auth, db } from '../../config/firebase'
 import { signIn, signUp, logOut, getCurrentUser } from '../../utils/auth'
-import { getDocument, addDocument, updateDocument, setDocument } from '../../utils/database'
+import { getDocument, setDocument } from '../../utils/database'
 import { doc, setDoc } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -19,23 +19,16 @@ export function AuthProvider({ children }) {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       try {
         if (authUser) {
-          // Get user data from Firestore
           const userData = await getDocument('users', authUser.uid)
-          console.log('User data from Firestore:', userData) // Debug log
-          
           if (userData) {
-            // Combine auth user data with Firestore user data
             const combinedUserData = {
               ...authUser,
               ...userData,
-              role: userData.role || 'user' // Ensure role has a default value
+              role: userData.role || 'user'
             }
-            console.log('Combined user data:', combinedUserData) // Debug log
             setUser(combinedUserData)
             setIsAdmin(combinedUserData.role === 'admin')
-            console.log('Admin status set to:', combinedUserData.role === 'admin') // Debug log
           } else {
-            console.error('No user data found in Firestore')
             setUser(authUser)
             setIsAdmin(false)
           }
@@ -44,14 +37,12 @@ export function AuthProvider({ children }) {
           setIsAdmin(false)
         }
         setError(null)
-      } catch (error) {
-        console.error('Error loading user data:', error)
+      } catch {
         setError('Failed to load user data')
       } finally {
         setLoading(false)
       }
     })
-
     return () => unsubscribe()
   }, [])
 
@@ -61,7 +52,6 @@ export function AuthProvider({ children }) {
       setError(null)
       const authUser = await signIn(email, password)
       const userData = await getDocument('users', authUser.uid)
-      
       if (userData) {
         const combinedUserData = {
           ...authUser,
@@ -75,7 +65,6 @@ export function AuthProvider({ children }) {
       }
       return authUser
     } catch (error) {
-      console.error('Error logging in:', error)
       setError(error.message)
       toast.error(error.message)
       throw error
@@ -89,7 +78,6 @@ export function AuthProvider({ children }) {
       setLoading(true)
       setError(null)
       const user = await signUp(email, password, displayName)
-      // Create user document in Firestore with uid as document ID
       await setDocument('users', user.uid, {
         uid: user.uid,
         email: user.email,
@@ -99,7 +87,6 @@ export function AuthProvider({ children }) {
       })
       return user
     } catch (error) {
-      console.error('Error registering:', error)
       setError(error.message)
       throw error
     } finally {
@@ -115,7 +102,6 @@ export function AuthProvider({ children }) {
       toast.success('Logged out successfully!')
       navigate('/')
     } catch (error) {
-      console.error('Error logging out:', error)
       setError(error.message)
       toast.error(error.message)
       throw error
@@ -129,18 +115,14 @@ export function AuthProvider({ children }) {
       setLoading(true)
       setError(null)
       if (!user) throw new Error('No user logged in')
-      // Only update specified fields, merge with existing document
       const userRef = doc(db, 'users', user.uid)
       await setDoc(userRef, {
         ...data,
         updatedAt: new Date()
       }, { merge: true })
       setUser(prev => ({ ...prev, ...data }))
-      if (data.role) {
-        setIsAdmin(data.role === 'admin')
-      }
+      if (data.role) setIsAdmin(data.role === 'admin')
     } catch (error) {
-      console.error('Error updating profile:', error)
       setError(error.message)
       throw error
     } finally {
@@ -172,8 +154,6 @@ export function AuthProvider({ children }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider')
   return context
 }

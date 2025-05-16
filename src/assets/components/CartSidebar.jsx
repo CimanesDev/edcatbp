@@ -4,16 +4,13 @@ import { useCart } from '../context/CartContext'
 import { Link } from 'react-router-dom'
 
 export default function CartSidebar({ isOpen, onClose }) {
-  const { cart, removeFromCart, updateQuantity, getCartTotal, totalItems, loading } = useCart()
+  const { cart, removeFromCart, updateQuantity, getCartTotal, loading } = useCart()
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true)
-    } else {
-      const timer = setTimeout(() => {
-        setIsVisible(false)
-      }, 300)
+    if (isOpen) setIsVisible(true)
+    else {
+      const timer = setTimeout(() => setIsVisible(false), 300)
       return () => clearTimeout(timer)
     }
   }, [isOpen])

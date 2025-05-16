@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
-import { getSubcollectionDocs, setSubcollectionDoc, updateSubcollectionDoc, deleteSubcollectionDoc } from '../../utils/database'
+import { getSubcollectionDocs, setSubcollectionDoc, deleteSubcollectionDoc } from '../../utils/database'
 import { toast } from 'react-hot-toast'
 
 const CartContext = createContext()
@@ -11,17 +11,13 @@ export function CartProvider({ children }) {
   const { user } = useAuth()
   const [hasLoaded, setHasLoaded] = useState(false)
 
-  // Load cart from Firestore subcollection when user logs in
   useEffect(() => {
     const loadCart = async () => {
       if (user && user.uid) {
         try {
           const cartItems = await getSubcollectionDocs('users', user.uid, 'cartItems')
           setCart(cartItems)
-          console.log('Loaded cart from Firestore subcollection:', cartItems)
-        } catch (error) {
-          console.error('Error loading cart:', error)
-        }
+        } catch {}
       } else {
         setCart([])
       }
@@ -31,7 +27,6 @@ export function CartProvider({ children }) {
     loadCart()
   }, [user])
 
-  // Add item to cart subcollection
   const addToCart = async (product, quantity = 1) => {
     if (!user || !user.uid) {
       toast.error('Please log in to add items to cart')
@@ -56,7 +51,6 @@ export function CartProvider({ children }) {
         const addQuantity = Math.min(quantity, maxQuantity)
         newCart = [...prevCart, { ...product, quantity: addQuantity }]
       }
-      // Save to Firestore
       setSubcollectionDoc('users', user.uid, 'cartItems', product.id, {
         ...product,
         quantity: newCart.find(i => i.id === product.id)?.quantity || 1
@@ -65,14 +59,12 @@ export function CartProvider({ children }) {
     })
   }
 
-  // Remove item from cart subcollection
   const removeFromCart = async (productId) => {
     if (!user || !user.uid) return
     setCart(prevCart => prevCart.filter(item => item.id !== productId))
     await deleteSubcollectionDoc('users', user.uid, 'cartItems', productId)
   }
 
-  // Update quantity in cart subcollection
   const updateQuantity = async (productId, quantity) => {
     if (!user || !user.uid) return
     setCart(prevCart => {
@@ -81,7 +73,6 @@ export function CartProvider({ children }) {
       const maxQuantity = item.stock || 0
       if (quantity < 1) return prevCart
       const newQuantity = Math.min(quantity, maxQuantity)
-      // Save to Firestore
       setSubcollectionDoc('users', user.uid, 'cartItems', productId, {
         ...item,
         quantity: newQuantity
@@ -94,7 +85,6 @@ export function CartProvider({ children }) {
     })
   }
 
-  // Clear cart subcollection
   const clearCart = async () => {
     if (!user || !user.uid) return
     for (const item of cart) {
@@ -103,13 +93,8 @@ export function CartProvider({ children }) {
     setCart([])
   }
 
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0)
-  }
-
-  const getCartCount = () => {
-    return cart.reduce((count, item) => count + item.quantity, 0)
-  }
+  const getCartTotal = () => cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const getCartCount = () => cart.reduce((count, item) => count + item.quantity, 0)
 
   const updateCartQuantities = async (productId, newStock) => {
     if (!user || !user.uid) return
@@ -117,7 +102,6 @@ export function CartProvider({ children }) {
       const item = prevCart.find(i => i.id === productId)
       if (!item) return prevCart
       if (item.quantity > newStock) {
-        // Update Firestore
         setSubcollectionDoc('users', user.uid, 'cartItems', productId, {
           ...item,
           quantity: newStock
@@ -153,8 +137,6 @@ export function CartProvider({ children }) {
 
 export const useCart = () => {
   const context = useContext(CartContext)
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider')
-  }
+  if (!context) throw new Error('useCart must be used within a CartProvider')
   return context
 }

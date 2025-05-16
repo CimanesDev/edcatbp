@@ -23,17 +23,11 @@ function ProductDetails() {
 
   const images = product.images || [product.image]
 
-  const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % images.length)
-  }
-
-  const prevImage = () => {
-    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length)
-  }
+  const nextImage = () => setSelectedImageIndex(prev => (prev + 1) % images.length)
+  const prevImage = () => setSelectedImageIndex(prev => (prev - 1 + images.length) % images.length)
 
   return (
     <div className="max-w-5xl mx-auto py-12">
-      {/* Breadcrumb */}
       <nav className="mb-8 text-sm text-gray-500 flex items-center gap-2" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-gray-900">Home</Link>
         <span>/</span>
@@ -42,7 +36,6 @@ function ProductDetails() {
         <span className="text-gray-700 font-semibold">{product.name}</span>
       </nav>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        {/* Image Gallery */}
         <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center justify-center">
           <div className="relative w-full">
             <img
@@ -67,18 +60,13 @@ function ProductDetails() {
               </>
             )}
           </div>
-          {/* Gallery thumbnails */}
           {images.length > 1 && (
             <div className="flex gap-2 mt-2">
               {images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImageIndex(index)}
-                  className={`w-16 h-16 rounded-lg border-2 transition ${
-                    index === selectedImageIndex
-                      ? 'border-gray-900'
-                      : 'border-gray-200 hover:border-gray-400'
-                  }`}
+                  className={`w-16 h-16 rounded-lg border-2 transition ${index === selectedImageIndex ? 'border-gray-900' : 'border-gray-200 hover:border-gray-400'}`}
                 >
                   <img
                     src={image}
@@ -109,7 +97,6 @@ function ProductDetails() {
           </div>
         </div>
       </div>
-      {/* Related Products */}
       {related.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
