@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import { Toaster } from 'react-hot-toast'
 import Navbar from './assets/components/Navbar'    
 import Footer from './assets/components/Footer'
@@ -17,6 +18,7 @@ import Account from './assets/pages/Account'
 import NotFound from './assets/pages/NotFound'
 import Wishlist from './assets/pages/Wishlist'
 import Contact from './assets/pages/Contact'
+import PageTransition from './assets/components/PageTransition'
 import { AuthProvider } from './assets/context/AuthContext'
 import { CartProvider } from './assets/context/CartContext'
 import { ProductProvider } from './assets/context/ProductContext'
@@ -49,6 +51,7 @@ function ProtectedRoute({ children, requireAdmin }) {
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const location = useLocation()
 
   return (
     <AuthProvider>
@@ -61,49 +64,51 @@ function App() {
                 <Navbar onCartClick={() => setIsCartOpen(true)} />
                 <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
                 <main className="flex-grow container mx-auto px-4 py-8">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/products/:id" element={<ProductDetails />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route 
-                      path="/checkout" 
-                      element={
-                        <ProtectedRoute>
-                          <Checkout />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route 
-                      path="/admin/products" 
-                      element={
-                        <ProtectedRoute requireAdmin={true}>
-                          <AdminProducts />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/orders" 
-                      element={
-                        <ProtectedRoute requireAdmin={true}>
-                          <AdminOrders />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/account" 
-                      element={
-                        <ProtectedRoute>
-                          <Account />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <AnimatePresence mode="wait">
+                    <Routes location={location} key={location.pathname}>
+                      <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+                      <Route path="/products" element={<PageTransition><Products /></PageTransition>} />
+                      <Route path="/products/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
+                      <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+                      <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />
+                      <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+                      <Route 
+                        path="/checkout" 
+                        element={
+                          <ProtectedRoute>
+                            <PageTransition><Checkout /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+                      <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+                      <Route 
+                        path="/admin/products" 
+                        element={
+                          <ProtectedRoute requireAdmin={true}>
+                            <PageTransition><AdminProducts /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/orders" 
+                        element={
+                          <ProtectedRoute requireAdmin={true}>
+                            <PageTransition><AdminOrders /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/account" 
+                        element={
+                          <ProtectedRoute>
+                            <PageTransition><Account /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+                    </Routes>
+                  </AnimatePresence>
                 </main>
                 <Footer />
               </div>
