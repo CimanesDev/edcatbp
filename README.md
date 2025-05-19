@@ -32,6 +32,9 @@ VITE_FIREBASE_PROJECT_ID=your_project_id
 VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
+
+VITE_CLOUDINARY_CLOUD_NAME=your_vite_cloud_name
+VITE_CLOUDINARY_UPLOAD_PRESET=your_vite_upload_preset
 ```
 
 ### Installation
@@ -70,6 +73,10 @@ The application will be available at `http://localhost:5173`
 
 - Use the button in the Navbar or Admin page to switch between admin and buyer views.
 - The role is managed by the `AuthContext` and is hardcoded for demonstration purposes.
+
+## Git issue
+
+- I accidentally committed a file that wasn't meant to be in my project folder, which was apparently too big. I had to force push to a different branch because even after the file was deleted it was still being detected by Git
 
 ## License
 
