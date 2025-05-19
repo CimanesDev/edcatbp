@@ -77,6 +77,8 @@ The application will be available at `http://localhost:5173`
 ## Git issue
 
 - I accidentally committed a file that wasn't meant to be in my project folder, which was apparently too big. I had to force push to a different branch because even after the file was deleted it was still being detected by Git
+- Original commits
+![image](https://github.com/user-attachments/assets/96d2a654-d4e1-4e59-ba12-8771d3631f63)
 
 ## License
 
